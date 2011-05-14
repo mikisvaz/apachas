@@ -1,5 +1,3 @@
-$: << '.'
-
 require 'sinatra'
 require 'haml'
 require 'lib/apachas'
