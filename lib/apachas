@@ -1,0 +1,10 @@
+#!/usr/bin/ruby
+
+require 'pp'
+$: << '.'
+require 'apachas'
+
+Apachas.procesa STDIN.read
+
+
+

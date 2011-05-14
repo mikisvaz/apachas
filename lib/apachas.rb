@@ -1,4 +1,4 @@
-module Apachas
+class Apachas
 
   def self.match(w1, w2)
     w1.downcase.strip == w2.downcase.strip
@@ -129,10 +129,10 @@ module Apachas
 
        "* #{ nombre }:\n" +
        "Balance: #{info[:diff]}\n" + 
-       "Pagó: #{info[:pago]}\n" + 
-       "Gastó: #{info[:debe]}"
+       "Pag: #{info[:pago]}\n" + 
+       "Gast: #{info[:debe]}"
     } * "\n-------\n"
-    puts data
+    data
   end
 
   def self.procesa(str)
