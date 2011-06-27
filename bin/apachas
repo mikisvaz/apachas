@@ -1,8 +1,12 @@
 #!/usr/bin/ruby
 
+$: << File.dirname(__FILE__) + '/../lib'
+
 require 'apachas'
 
-Apachas.procesa STDIN.read
+balance = Apachas.procesa(STDIN.read)
+
+puts balance
 
 
 
