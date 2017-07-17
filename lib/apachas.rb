@@ -1,10 +1,14 @@
-class Apachas
+module Apachas
 
   def self.match(w1, w2)
     w1.downcase.strip == w2.downcase.strip
   end
 
   def self.match_nombre(names, entry)
+    if entry =~ /\((.*)\)/
+      return $1
+    end
+      
     entry = entry.upcase
     [
       proc{|name, entry| match(name.upcase, entry) },
@@ -20,28 +24,50 @@ class Apachas
     return entry
   end
 
+  def self.iii(obj)
+    puts obj.inspect
+  end
+
   def self.parsea_nombres(data)
     nombres = []
+    grupos = {}
     otros = 0
     data.each_line do |line|
       next if line.strip.empty?
 
       if line =~ /^\s*\d+\s*$/
         otros = line.to_i
+      elsif line =~ /^\((.*)\) (.*)/
+        nombre = $1
+        miembros_str = $2
+        miembros = []
+        miembros_str.split(" ").each do |miembro|
+          if miembro == "*"
+            miembros.concat nombres
+            miembros << "Otros" if otros != 0
+          elsif miembro[0] == "-"
+            miembros.delete miembro[1..-1]
+          else
+            miembros << miembro
+          end
+        end
+
+        grupos[nombre] = miembros
       else
         nombres << line.strip
       end
     end
 
-    [nombres, otros]
+    [nombres, otros, grupos]
   end
 
 
-  def self.parsea_datos(datos, nombres)
+  def self.parsea_datos(datos, nombres, grupos = nil)
 
     info = []
     datos.each_line do |line|
       next if line.strip.empty?
+      next if line[0] == "#"
       nombre, beneficiarios, cantidad, concepto, comentario = line.strip.split(/\s+/)
       if beneficiarios != "*"
         beneficiarios = beneficiarios.split(/[,\s]+/).collect{|n| match_nombre(nombres, n)}
@@ -67,25 +93,28 @@ class Apachas
     end
 
     if nombres_txt
-      nombres, otros = parsea_nombres(nombres_txt) if nombres_txt
+      nombres, otros, grupos = parsea_nombres(nombres_txt) if nombres_txt
     else
       nombres = []
       otros   = 0
     end
 
-    pagos = parsea_datos(datos_txt, nombres)
+    pagos = parsea_datos(datos_txt, nombres, grupos)
 
     gente = nombres.length + otros
     total = pagos.inject(0){|acc,e| acc+=e[:cantidad]}
 
-    {:gente => gente, :pagos => pagos}
+    {:gente => gente, :pagos => pagos, :grupos => grupos}
   end
 
   def self.balance(info)
     gente = info[:gente]
     pagos = info[:pagos]
+    grupos = info[:grupos]
 
-    nombres = (pagos.collect{|pago| pago[:nombre] } + pagos.collect{|pago| pago[:beneficiarios]}.flatten).uniq - ['*'] 
+    nombres = (pagos.collect{|pago| pago[:nombre] } + pagos.collect{|pago| pago[:beneficiarios] }.flatten).uniq - ['*'] 
+
+    nombres.delete_if{|nombre| grupos.include? nombre }
 
     gente = nombres.length if nombres.length > gente
 
@@ -97,6 +126,10 @@ class Apachas
       nombre = pago[:nombre]
       beneficiarios = pago[:beneficiarios]
       cantidad = pago[:cantidad]
+
+      if Array === beneficiarios and beneficiarios.length == 1 and grupos and grupos[beneficiarios.first]
+        beneficiarios = grupos[beneficiarios.first]
+      end
 
       balance[nombre][:pago] += cantidad
 
@@ -129,13 +162,14 @@ class Apachas
 
        "* #{ nombre }:\n" +
        "Balance: #{info[:diff]}\n" + 
-       "Pag: #{info[:pago]}\n" + 
-       "Gast: #{info[:debe]}"
+       "Pago: #{info[:pago]}\n" + 
+       "Gasto: #{info[:debe]}"
     } * "\n-------\n"
-    data
+    puts data
   end
 
   def self.procesa(str)
-    print_balance balance parsea str
+    balance = balance(parsea(str))
+    print_balance(balance)
   end
 end
