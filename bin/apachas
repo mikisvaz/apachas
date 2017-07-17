@@ -4,9 +4,4 @@ $: << File.dirname(__FILE__) + '/../lib'
 
 require 'apachas'
 
-balance = Apachas.procesa(STDIN.read)
-
-puts balance
-
-
-
+Apachas.procesa(STDIN.read)

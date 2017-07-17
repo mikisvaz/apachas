@@ -1,0 +1,12 @@
+Miguel
+Javi
+Pablo
+3
+(Coche) Pablo Javi
+(Bus) * -Pablo -Javi
+@
+
+Pablo (Coche) 50 Gasolina
+Miguel (Bus) 20 Panchitos y cocacola
+Javi * 60 Cena
+Pablo Miguel 8 Cerveza

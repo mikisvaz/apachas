@@ -24,9 +24,6 @@ module Apachas
     return entry
   end
 
-  def self.iii(obj)
-    puts obj.inspect
-  end
 
   def self.parsea_nombres(data)
     nombres = []
@@ -44,7 +41,7 @@ module Apachas
         miembros_str.split(" ").each do |miembro|
           if miembro == "*"
             miembros.concat nombres
-            miembros << "Otros" if otros != 0
+            miembros << "otro" if otros != 0
           elsif miembro[0] == "-"
             miembros.delete miembro[1..-1]
           else
@@ -120,7 +117,8 @@ module Apachas
 
     balance = {}
     nombres.each do |nombre| balance[nombre] = {:pago => 0, :debe => 0} end
-    balance[:otro] = {:pago => 0, :debe => 0, :cantidad => gente - nombres.length} if nombres.length < gente
+    otros = gente - nombres.length 
+    balance[:otro] = {:pago => 0, :debe => 0, :cantidad => gente - nombres.length} if otros > 0
 
     pagos.each do |pago|
       nombre = pago[:nombre]
@@ -142,8 +140,14 @@ module Apachas
 
         balance[:otro][:debe] += parte if balance[:otro]
       else
-        parte = cantidad / beneficiarios.length
+        if beneficiarios.include? "otro"
+          num_beneficiarios = beneficiarios.length - 1 + otros
+        else
+          num_beneficiarios = beneficiarios.length
+        end
+        parte = cantidad / num_beneficiarios
         beneficiarios.each do |beneficiario|
+          beneficiario = beneficiario.to_sym if beneficiario == 'otro'
           balance[beneficiario][:debe] += parte
         end
       end
