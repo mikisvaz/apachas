@@ -1,0 +1,28 @@
+#!/usr/bin/ruby
+
+$: << File.dirname(__FILE__) + '/../lib'
+
+parejas = ARGV.collect{|p| p.split(/[:,-]/) }
+
+balances = {}
+persona = nil
+while line = STDIN.gets
+    if line =~ /\* (.*):/
+        persona = $1
+    elsif line =~ /Balance: (.*)/
+        cantidad = $1.to_f
+        balances[persona] = cantidad
+    end
+end
+
+parejas.each do |n1,n2|
+    n = balances.values_at(n1, n2).inject(0){|acc,e| acc += e}
+    balances.delete n1
+    balances.delete n2
+    balances[[n1, n2] * " y "] = n
+end
+
+balances.sort_by{|n,v| v}.reverse.each do |n,v|
+    puts [n, "%.2f" % v] * ": "
+end
+
