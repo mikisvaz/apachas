@@ -165,9 +165,9 @@ module Apachas
        nombre, info = p
 
        "* #{ nombre }:\n" +
-       "Balance: #{info[:diff]}\n" + 
-       "Pago: #{info[:pago]}\n" + 
-       "Gasto: #{info[:debe]}"
+         "Balance: #{"%.1f" % info[:diff]}\n" + 
+         "Pago: #{"%.1f" % info[:pago]}\n" + 
+         "Gasto: #{"%.1f" % info[:debe]}"
     } * "\n-------\n"
     puts data
   end
