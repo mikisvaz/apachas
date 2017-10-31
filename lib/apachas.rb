@@ -107,7 +107,7 @@ module Apachas
   def self.balance(info)
     gente = info[:gente]
     pagos = info[:pagos]
-    grupos = info[:grupos]
+    grupos = info[:grupos] || {}
 
     nombres = (pagos.collect{|pago| pago[:nombre] } + pagos.collect{|pago| pago[:beneficiarios] }.flatten).uniq - ['*'] 
 
